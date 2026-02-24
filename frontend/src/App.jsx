@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./App.css";
 import TodoItem from "./components/TodoItem";
-import CustomCursor from "./components/CustomCursor";
 
 const API_URL = "http://localhost:5000/api/todos";
 
@@ -21,6 +20,7 @@ function App() {
   const [newTitle, setNewTitle] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("new");
 
   useEffect(() => {
     fetchTodos();
@@ -141,8 +141,6 @@ function App() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <CustomCursor />
-
       <div className="app-header">
         <motion.h1
           variants={titleContainer}
@@ -208,76 +206,112 @@ function App() {
           />
         </div>
       ) : (
-        <div className="kanban-board">
-          {/* Column 1: New Tasks */}
-          <div className="kanban-col new-tasks">
-            <h3 className="col-header">
+        <div className="tabbed-board">
+          {/* Tab Navigation */}
+          <div className="tab-nav">
+            <button
+              className={`tab-btn ${activeTab === "new" ? "active" : ""}`}
+              onClick={() => setActiveTab("new")}
+            >
               🚀 New <span className="count">{newTodos.length}</span>
-            </h3>
-            <div className="kanban-list">
-              <AnimatePresence mode="popLayout">
-                {newTodos.map((todo) => (
-                  <TodoItem
-                    key={todo._id}
-                    todo={todo}
-                    listType="new"
-                    onToggle={handleToggle}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                  />
-                ))}
-              </AnimatePresence>
-              {newTodos.length === 0 && (
-                <div className="empty-msg">No new tasks</div>
-              )}
-            </div>
-          </div>
-
-          {/* Column 2: Completed */}
-          <div className="kanban-col completed-tasks">
-            <h3 className="col-header">
+            </button>
+            <button
+              className={`tab-btn ${activeTab === "completed" ? "active" : ""}`}
+              onClick={() => setActiveTab("completed")}
+            >
               ✅ Completed{" "}
               <span className="count">{completedTodos.length}</span>
-            </h3>
-            <div className="kanban-list">
-              <AnimatePresence mode="popLayout">
-                {completedTodos.map((todo) => (
-                  <TodoItem
-                    key={todo._id}
-                    todo={todo}
-                    listType="completed"
-                    onToggle={handleToggle}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                  />
-                ))}
-              </AnimatePresence>
-              {completedTodos.length === 0 && (
-                <div className="empty-msg">No completed tasks</div>
-              )}
-            </div>
+            </button>
+            <button
+              className={`tab-btn ${activeTab === "deleted" ? "active" : ""}`}
+              onClick={() => setActiveTab("deleted")}
+            >
+              🗑️ Deleted <span className="count">{deletedTodos.length}</span>
+            </button>
           </div>
 
-          {/* Column 3: Deleted */}
-          <div className="kanban-col deleted-tasks">
-            <h3 className="col-header">
-              🗑️ Deleted <span className="count">{deletedTodos.length}</span>
-            </h3>
-            <div className="kanban-list">
-              <AnimatePresence mode="popLayout">
-                {deletedTodos.map((todo) => (
-                  <TodoItem
-                    key={todo._id}
-                    todo={todo}
-                    listType="deleted"
-                    onRestore={handleRestore}
-                  />
-                ))}
-              </AnimatePresence>
-              {deletedTodos.length === 0 && (
-                <div className="empty-msg">Recycle bin empty</div>
+          {/* Tab Content */}
+          <div className="tab-content-container">
+            <AnimatePresence mode="wait">
+              {activeTab === "new" && (
+                <motion.div
+                  key="new"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                  className="kanban-list"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {newTodos.map((todo) => (
+                      <TodoItem
+                        key={todo._id}
+                        todo={todo}
+                        listType="new"
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  {newTodos.length === 0 && (
+                    <div className="empty-msg">No new tasks. Relax!</div>
+                  )}
+                </motion.div>
               )}
-            </div>
+
+              {activeTab === "completed" && (
+                <motion.div
+                  key="completed"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                  className="kanban-list"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {completedTodos.map((todo) => (
+                      <TodoItem
+                        key={todo._id}
+                        todo={todo}
+                        listType="completed"
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  {completedTodos.length === 0 && (
+                    <div className="empty-msg">No completed tasks yet.</div>
+                  )}
+                </motion.div>
+              )}
+
+              {activeTab === "deleted" && (
+                <motion.div
+                  key="deleted"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                  className="kanban-list"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {deletedTodos.map((todo) => (
+                      <TodoItem
+                        key={todo._id}
+                        todo={todo}
+                        listType="deleted"
+                        onRestore={handleRestore}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  {deletedTodos.length === 0 && (
+                    <div className="empty-msg">Recycle bin is empty.</div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       )}

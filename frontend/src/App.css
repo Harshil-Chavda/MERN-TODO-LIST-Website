@@ -18,40 +18,13 @@ body {
   justify-content: center;
   padding: 60px 40px;
   overflow-x: hidden;
-  cursor: none; /* Hide default cursor */
-}
-
-.custom-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #a78bfa;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  transition: width 0.2s, height 0.2s, background-color 0.2s;
-}
-
-.custom-cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  background-color: #38bdf8;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 10000;
+  /* Remove original cursor logic, we will replace it later */
 }
 
 /* === Main App Container === */
 .app-container {
   width: 100%;
-  max-width: 1200px; /* Widened for 3 columns */
+  max-width: 800px; /* narrowed back down for tabbed view */
   background: rgba(20, 20, 35, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -158,45 +131,67 @@ body {
   box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
 }
 
-/* === Kanban Board Layout === */
-.kanban-board {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  align-items: start;
-}
-
-.kanban-col {
-  background: rgba(15, 15, 30, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 24px;
-  min-height: 400px;
+/* === Tabbed Board Layout === */
+.tabbed-board {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
-.col-header {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 24px;
+.tab-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 16px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  gap: 12px;
+  background: rgba(15, 15, 30, 0.4);
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.new-tasks .col-header { color: #38bdf8; }
-.completed-tasks .col-header { color: #22c55e; }
-.deleted-tasks .col-header { color: #ef4444; }
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  color: #94a3b8;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
-.col-header .count {
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+.tab-btn.active {
   background: rgba(255, 255, 255, 0.1);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #f8fafc;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.tab-btn .count {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.tab-btn.active .count {
+  background: linear-gradient(135deg, #7c3aed, #38bdf8);
+  color: white;
+}
+
+.tab-content-container {
+  min-height: 400px;
+  position: relative;
 }
 
 .kanban-list {
@@ -371,7 +366,17 @@ body {
 }
 @keyframes shine { to { background-position: 200% center; } }
 
-/* Allow clicking on links, buttons, etc. */
-a, button, input, select, .checkbox {
-  cursor: none !important; /* Force custom cursor on interactive elements too */
+/* Custom OS-level cursors using SVGs matching the website theme */
+body {
+  cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 3.5L19 12L5.5 20.5V3.5Z" fill="%23c4b5fd" stroke="%2338bdf8" stroke-width="1.5"/></svg>'), auto;
+}
+
+/* Interactive elements get a glowing pointer */
+a, button, select, .checkbox, .tab-btn {
+  cursor: url('data:image/svg+xml;utf8,<svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="%23a78bfa" fill-opacity="0.8" stroke="%2338bdf8" stroke-width="2"/></svg>') 12 12, pointer !important;
+}
+
+/* Inputs get a themed text cursor */
+input[type="text"] {
+  cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20M8 4H16M8 20H16" stroke="%2338bdf8" stroke-width="2" stroke-linecap="round"/></svg>') 12 12, text !important;
 }
